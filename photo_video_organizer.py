@@ -75,7 +75,7 @@ from sklearn.cluster import DBSCAN
 import requests
 
 # ===== Configuration =====
-SOURCE_DIR = os.path.expanduser("~/Desktop/Photos/Zeeland")            # Source photo folder
+SOURCE_DIR = os.path.expanduser("~/Desktop/Photos/Afsluitdijk")            # Source photo folder
 OUTPUT_DIR = os.path.expanduser("~/Desktop/Photos/Photos_Organized")  # Destination folder
 CACHE_FILE = os.path.expanduser("~/Desktop/Photos/Photos_Organized/.nominatim_cache.json")
 COPY_MODE = True              # True = copy (keep originals), False = move
