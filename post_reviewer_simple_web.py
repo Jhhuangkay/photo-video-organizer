@@ -63,6 +63,12 @@ def create_reviewer_html(posts):
         .media-list {{ background: #f0f2f5; padding: 15px; border-radius: 6px; }}
         .media-item {{ padding: 8px; font-size: 13px; color: #65676b; border-bottom: 1px solid #e4e6eb; }}
         .media-item:last-child {{ border-bottom: none; }}
+        .media-preview {{ display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; margin-top: 15px; }}
+        .preview-item {{ position: relative; border-radius: 8px; overflow: hidden; background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }}
+        .preview-item img {{ width: 100%; height: 200px; object-fit: cover; display: block; }}
+        .preview-item video {{ width: 100%; height: 200px; object-fit: cover; display: block; background: #000; }}
+        .preview-label {{ padding: 8px; font-size: 12px; color: #65676b; text-align: center; background: #f8f9fa; word-break: break-all; }}
+        .video-icon {{ position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 48px; color: white; text-shadow: 0 2px 4px rgba(0,0,0,0.5); pointer-events: none; }}
         .status-badge {{ display: inline-block; padding: 6px 14px; border-radius: 12px; font-size: 13px; font-weight: bold; }}
         .status-pending {{ background: #fff3cd; color: #856404; }}
         .status-approved {{ background: #d4edda; color: #155724; }}
@@ -117,6 +123,7 @@ def create_reviewer_html(posts):
             <div class="section">
                 <div class="section-title">Media Files</div>
                 <div class="media-list" id="mediaList"></div>
+                <div class="media-preview" id="mediaPreview"></div>
             </div>
             
             <div class="actions">
@@ -176,6 +183,37 @@ Platforms: ${{post.platforms.join(', ')}}`;
                 return `<div class="media-item">📎 ${{filename}}</div>`;
             }}).join('');
             document.getElementById('mediaList').innerHTML = mediaHtml;
+            
+            // Update media preview
+            const previewHtml = post.media.map(m => {{
+                const filename = m.split('/').pop();
+                const ext = filename.split('.').pop().toLowerCase();
+                const isVideo = ['mov', 'mp4', 'm4v', 'avi', '3gp'].includes(ext);
+                const isHeic = ['heic', 'heif'].includes(ext);
+                
+                if (isVideo) {{
+                    return `<div class="preview-item">
+                        <video src="file://${{m}}" controls>
+                            <source src="file://${{m}}" type="video/${{ext === 'mov' ? 'quicktime' : ext}}">
+                        </video>
+                        <div class="preview-label">🎬 ${{filename}}</div>
+                    </div>`;
+                }} else if (isHeic) {{
+                    // HEIC files may not display in browser, show placeholder
+                    return `<div class="preview-item">
+                        <div style="width: 100%; height: 200px; display: flex; align-items: center; justify-content: center; background: #e4e6eb; color: #65676b; font-size: 48px;">
+                            📷
+                        </div>
+                        <div class="preview-label">📸 ${{filename}} (HEIC)</div>
+                    </div>`;
+                }} else {{
+                    return `<div class="preview-item">
+                        <img src="file://${{m}}" alt="${{filename}}" onerror="this.parentElement.innerHTML='<div style=\\'width:100%;height:200px;display:flex;align-items:center;justify-content:center;background:#e4e6eb;color:#65676b;font-size:48px;\\'>📷</div><div class=\\'preview-label\\'>📸 ${{filename}}</div>'">
+                        <div class="preview-label">📸 ${{filename}}</div>
+                    </div>`;
+                }}
+            }}).join('');
+            document.getElementById('mediaPreview').innerHTML = previewHtml;
         }}
         
         function nextPost() {{
