@@ -1,225 +1,230 @@
-# Photo & Video Organizer
+# 📸 Travel Social Media Automation System
 
-Automatically organize your photos and videos by location and date using GPS metadata. Perfect for iPhone users with thousands of photos from travels!
+Automatically organize your travel photos by location and generate professional bilingual social media posts for Facebook and Instagram.
 
 ## ✨ Features
 
-- 📍 **GPS-based organization** - Automatically sorts by Continent/Country/City/Date/Landmark
-- 🎥 **Video support** - Handles both photos (HEIC, JPG, PNG) and videos (MOV, MP4)
-- 🗺️ **Smart clustering** - Groups nearby photos together with landmark names
-- 📅 **Date fallback** - Organizes files without GPS by date
-- 🖼️ **Screenshot detection** - Automatically identifies and separates screenshots
-- 🔒 **Safe by default** - Copies files (originals untouched)
-- ⚡ **Fast** - Processes 100K photos in minutes
-- 🌐 **Offline geocoding** - Country/city lookup works without internet
+### 🗺️ Smart Photo Organization
+- GPS-based organization (Continent/Country/City/Date/Landmark)
+- Supports HEIC (iPhone), MOV, MP4, JPG, PNG formats
+- Date fallback for photos without GPS
+- Smart clustering to group nearby photos
+- Automatic landmark detection via OpenStreetMap
+- Screenshot detection and separation
 
-## 📸 Example Output
+### 📝 Automated Post Generation
+- Bilingual captions (English + Traditional Chinese)
+- Engaging 2-3 sentence captions per language
+- Relevant hashtags (8 per post)
+- Smart photo selection (4-5 best per location)
+- Daily posting schedule
+- Visual preview with actual images
+- Works completely offline (no API keys needed)
 
-```
-Photos_Organized/
-├── Europe/
-│   └── Netherlands/
-│       └── Amsterdam/
-│           ├── 2021-11-24_Dam_Square/
-│           │   ├── IMG_3443.HEIC
-│           │   ├── IMG_3444.MOV
-│           │   └── IMG_3445.JPG
-│           └── 2021-11-25_Vondelpark/
-│               └── IMG_3450.HEIC
-├── Asia/
-│   └── Japan/
-│       └── Tokyo/
-│           └── 2024-03-15_Shibuya/
-│               ├── IMG_5001.HEIC
-│               └── VID_5002.MOV
-└── Uncategorized/
-    ├── Screenshots/
-    │   └── Screenshot_2024-03-13.png
-    └── No_GPS/
-        └── 2024-03-13/
-            └── downloaded_photo.jpg
-```
+### 🌐 Interactive Web Reviewer
+- Clean web interface (opens in browser)
+- Navigate with buttons or arrow keys
+- Edit captions inline
+- One-click copy to clipboard
+- Quick links to Facebook and Instagram
+- Approve/reject workflow
+- Mobile-friendly design
 
 ## 🚀 Quick Start
 
-### Prerequisites
-
-- Python 3.8+
-- exiftool (for video support)
-
 ### Installation
 
+1. Clone the repository:
 ```bash
-# Clone the repository
-git clone https://github.com/yourusername/photo-video-organizer.git
-cd photo-video-organizer
+git clone https://github.com/YOURUSERNAME/travel-social-media-automation.git
+cd travel-social-media-automation
+```
 
-# Create virtual environment
+2. Create virtual environment:
+```bash
 python3 -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
+```
 
-# Install Python dependencies
+3. Install dependencies:
+```bash
 pip install -r requirements.txt
+```
 
-# Install exiftool (macOS)
+4. Install exiftool (for video support):
+```bash
+# macOS
 brew install exiftool
 
-# Install exiftool (Linux)
+# Ubuntu/Debian
 sudo apt-get install libimage-exiftool-perl
 
-# Install exiftool (Windows)
+# Windows
 # Download from https://exiftool.org/
 ```
 
 ### Usage
 
+#### Step 1: Organize Your Photos
 ```bash
-# Activate virtual environment
-source venv/bin/activate
-
-# Run the organizer
 python photo_video_organizer.py
 ```
+- Place your iPhone photos in `~/Desktop/Photos/`
+- Script organizes them to `~/Desktop/Photos_Organized/`
+- Structure: `Continent/Country/City/Date_Landmark/`
 
-By default, it will:
-- Read from: `~/Desktop/Photos`
-- Write to: `~/Desktop/Photos_Organized`
-- Copy files (originals stay untouched)
-
-### Configuration
-
-Edit `photo_video_organizer.py` to customize:
-
-```python
-SOURCE_DIR = "~/Desktop/Photos"              # Your photos/videos location
-OUTPUT_DIR = "~/Desktop/Photos_Organized"    # Where to organize them
-COPY_MODE = True                             # True=copy, False=move
-CLUSTER_RADIUS_KM = 0.2                      # Grouping distance (200m)
-```
-
-## 📋 Supported Formats
-
-### Photos
-JPG, JPEG, PNG, HEIC, HEIF, TIFF, BMP, GIF, WEBP
-
-### Videos
-MOV, MP4, M4V, AVI, 3GP
-
-## 🧪 Testing
-
+#### Step 2: Generate Posts
 ```bash
-# Test photo support (HEIC)
-python test_heic.py
+python travel_post_generator.py
+```
+- Scans organized photos
+- Generates bilingual captions and hashtags
+- Creates posting schedule
+- Output: `~/Desktop/Photos/Travel_Posts/`
 
-# Test video support
-python test_video_support.py
+#### Step 3: Review & Post (Daily)
+```bash
+python post_reviewer_simple_web.py
+```
+- Opens interactive web interface
+- Review today's post
+- Copy caption and post to social media
+- Mark as approved
 
-# Test no-GPS organization
-python test_no_gps_organization.py
+## 📖 Example Output
 
-# Test all features
-python test_all_features.py
+### Organized Photos
+```
+Photos_Organized/
+├── Europe/
+│   └── Netherlands/
+│       └── Amsterdam/
+│           └── 2021-11-24_Dam_Square/
+│               ├── IMG_1234.jpg
+│               ├── IMG_1235.jpg
+│               └── IMG_1236.MOV
+└── Asia/
+    └── Japan/
+        └── Tokyo/
+            └── 2024-03-15_Shibuya/
+                ├── IMG_5678.HEIC
+                └── IMG_5679.jpg
 ```
 
-## 🎯 How It Works
+### Generated Post
+```
+Exploring the beautiful Dam Square in Amsterdam, Netherlands. This place 
+truly captures the essence of the city with its stunning architecture and 
+vibrant atmosphere. Every corner tells a story, and I'm grateful to 
+experience it firsthand. 🇪🇺
 
-1. **Scan** - Finds all photos and videos in source directory
-2. **Extract** - Reads GPS coordinates and dates from metadata
-3. **Geocode** - Converts GPS to location names (offline)
-4. **Cluster** - Groups nearby photos using DBSCAN algorithm
-5. **Landmark** - Queries OpenStreetMap for place names (cached)
-6. **Organize** - Copies files to organized folder structure
+探索荷蘭阿姆斯特丹美麗的Dam Square。這個地方以其令人驚嘆的建築和
+充滿活力的氛圍真正捕捉了城市的精髓。每個角落都訴說著一個故事，
+我很感激能親身體驗。🇪🇺
 
-## 🔧 Advanced Features
+#Amsterdam #Netherlands #Travel #TravelPhotography #Wanderlust #Explore 
+#EuropeTravel #DamSquare
 
-### Smart Date Handling
-- Tries EXIF date first (DateTimeOriginal, CreateDate)
-- Falls back to file modification date if no EXIF
-- Organizes no-GPS files by date: `Uncategorized/No_GPS/YYYY-MM-DD/`
+Photos: IMG_1234.jpg, IMG_1235.jpg, IMG_1236.MOV
+Scheduled: 2026-03-13
+```
 
-### Location Clustering
-- Groups photos within 200m of each other (configurable)
-- Assigns landmark names to each cluster
-- Handles duplicate landmark names intelligently
+## 🎯 Complete Workflow
 
-### Screenshot Detection
-- Checks filename for "screenshot" keywords
-- Detects iPhone screen resolutions without camera metadata
-- Separates to `Uncategorized/Screenshots/`
+### One-Time Setup
+1. Transfer photos from iPhone to `~/Desktop/Photos/`
+2. Run organizer: `python photo_video_organizer.py`
+3. Generate posts: `python travel_post_generator.py`
 
-### Duplicate Handling
-- Auto-numbers duplicate filenames
-- Never overwrites existing files
-- Preserves all your photos
+### Daily Routine (2 minutes)
+1. Run reviewer: `python post_reviewer_simple_web.py`
+2. Review caption and photos
+3. Click "📋 Copy Caption"
+4. Click "🌐 Facebook" or "📸 Instagram"
+5. Paste caption and upload photos
+6. Click "✅ Approve & Next"
+
+## ⚙️ Configuration
+
+### Photo Organizer
+Edit `photo_video_organizer.py`:
+```python
+SOURCE_DIR = "~/Desktop/Photos"
+OUTPUT_DIR = "~/Desktop/Photos_Organized"
+COPY_MODE = True  # True=copy, False=move
+CLUSTER_RADIUS_KM = 0.2  # Grouping distance
+```
+
+### Post Generator
+Edit `travel_post_generator.py`:
+```python
+ORGANIZED_PHOTOS_DIR = "~/Desktop/Photos_Organized"
+OUTPUT_DIR = "~/Desktop/Travel_Posts"
+POSTS_PER_DAY = 1  # Daily posts
+START_DATE = datetime.now()  # Start date
+```
 
 ## 📚 Documentation
 
-- [Quick Start Guide](QUICK_START.md) - Get started in 5 minutes
-- [Installation Checklist](INSTALLATION_CHECKLIST.md) - Step-by-step setup
-- [Video Support](VIDEO_SUPPORT_SUMMARY.md) - Video feature details
-- [Date Fallback](FALLBACK_DATE_FEATURE.md) - How date fallback works
-- [HEIC Fix](HEIC_FIX_SUMMARY.md) - HEIC support details
-- [What's New](WHATS_NEW.md) - Latest updates
+- [Complete System Guide](FINAL_SYSTEM_GUIDE.md) - Comprehensive overview
+- [Social Media Automation](SOCIAL_MEDIA_AUTOMATION.md) - Detailed documentation
+- [Quick Start Guide](SOCIAL_MEDIA_QUICK_START.md) - Get started fast
+- [Web Reviewer Guide](WEB_REVIEWER_GUIDE.md) - Reviewer interface details
+
+## 🛠️ Technical Details
+
+### Supported Formats
+- **Images:** JPG, JPEG, PNG, HEIC, HEIF
+- **Videos:** MOV, MP4, M4V, AVI, 3GP
+
+### Dependencies
+- Pillow - Image processing
+- pillow-heif - HEIC support
+- reverse_geocoder - Offline geocoding
+- pycountry - Country data
+- scikit-learn - Clustering algorithm
+- numpy - Numerical operations
+- requests - API calls
+
+### System Requirements
+- Python 3.8+
+- exiftool (for video metadata)
+- 100MB+ disk space
+- Internet connection (for OpenStreetMap landmark queries)
+
+## 💡 Tips
+
+### For Best Results
+1. Transfer photos with "Export Unmodified Originals" to preserve metadata
+2. Keep original filenames
+3. Review captions before posting
+4. Customize captions to add personal touch
+5. Post consistently for audience growth
+
+### Keyboard Shortcuts (Reviewer)
+- `←` Previous post
+- `→` Next post
 
 ## 🤝 Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
 
-## 📝 License
+## 📄 License
 
-MIT License - feel free to use this for personal or commercial projects.
-
-## ⚠️ Disclaimer
-
-- Always backup your photos before running any organization tool
-- Test with a small batch first
-- Default COPY mode is safe (originals untouched)
-- File modification dates may change when copying
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## 🙏 Acknowledgments
 
-- [reverse_geocoder](https://github.com/thampiman/reverse-geocoder) - Offline geocoding
-- [Pillow](https://python-pillow.org/) - Image processing
-- [pillow-heif](https://github.com/bigcat88/pillow_heif) - HEIC support
-- [exiftool](https://exiftool.org/) - Video metadata extraction
-- [OpenStreetMap Nominatim](https://nominatim.org/) - Landmark names
-
-## 💡 Tips
-
-- Run on a copy of your photos first to test
-- Use COPY mode (default) until you're confident
-- Check `Uncategorized/` folders for files that need manual sorting
-- Landmark queries are cached - rerunning is fast
-- Works great with iPhone, Android, and camera photos
-
-## 🐛 Troubleshooting
-
-### "exiftool not found"
-```bash
-brew install exiftool  # macOS
-sudo apt-get install libimage-exiftool-perl  # Linux
-```
-
-### "No module named 'pillow_heif'"
-```bash
-source venv/bin/activate
-pip install -r requirements.txt
-```
-
-### Videos not being organized
-- Check if exiftool is installed: `exiftool -ver`
-- Check if video has GPS: `exiftool -GPSLatitude -GPSLongitude video.MOV`
-- Videos without GPS go to `Uncategorized/No_GPS/YYYY-MM-DD/`
-
-### Photos organized to wrong location
-- GPS accuracy varies (especially indoors)
-- Check GPS coordinates: `exiftool -GPSLatitude -GPSLongitude photo.jpg`
-- Adjust `CLUSTER_RADIUS_KM` if needed
+- OpenStreetMap Nominatim for landmark data
+- reverse_geocoder for offline location lookup
+- pillow-heif for HEIC support
 
 ## 📧 Contact
 
-Questions? Issues? Open a GitHub issue or reach out!
+For questions or suggestions, please open an issue on GitHub.
 
 ---
 
-Made with ❤️ for travelers and photo enthusiasts
+**Built with ❤️ for travelers who want to share their adventures** ✈️📸🌏
+
+*No API keys needed • Works offline • Full control • Professional results*
