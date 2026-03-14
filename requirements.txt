@@ -1,0 +1,7 @@
+Pillow
+reverse_geocoder
+pycountry
+pillow-heif
+scikit-learn
+numpy
+requests

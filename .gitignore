@@ -1,0 +1,67 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
+venv/
+env/
+ENV/
+.venv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Test outputs
+*_output.txt
+*_test.txt
+test_output.txt
+jpg_test_output.txt
+jpg_test_output2.txt
+video_check.txt
+no_gps_test.txt
+all_features_test.txt
+
+# Organized photos output (don't commit user's photos)
+Photos_Organized/
+Photos_Test_Organized/
+
+# Cache files
+.nominatim_cache.json
+*.cache
+
+# Sample files (optional - uncomment if you don't want to commit test images)
+# *.jpg
+# *.jpeg
+# *.png
+# *.heic
+# *.heif
+# *.mov
+# *.mp4
+
+# Personal sample files - DO NOT COMMIT
+IMG_3443.HEIC
+IMG_3429.MOV
+S__59686947.jpg
