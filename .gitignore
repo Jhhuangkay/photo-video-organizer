@@ -48,6 +48,9 @@ all_features_test.txt
 Photos_Organized/
 Photos_Test_Organized/
 
+# Travel posts output (don't commit generated posts and thumbnails)
+Travel_Posts/
+
 # Cache files
 .nominatim_cache.json
 *.cache

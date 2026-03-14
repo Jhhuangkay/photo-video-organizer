@@ -8,9 +8,56 @@ No server needed!
 import json
 from pathlib import Path
 import webbrowser
+import base64
+from PIL import Image
+from pillow_heif import register_heif_opener
+
+# Register HEIF opener for Pillow
+register_heif_opener()
 
 POSTS_DIR = Path.home() / "Desktop" / "Photos" / "Travel_Posts" / "posts"
 OUTPUT_FILE = Path.home() / "Desktop" / "Photos" / "Travel_Posts" / "reviewer.html"
+THUMBNAILS_DIR = Path.home() / "Desktop" / "Photos" / "Travel_Posts" / "thumbnails"
+
+
+def convert_heic_to_thumbnail(heic_path):
+    """Convert HEIC image to JPG thumbnail and return the path."""
+    try:
+        # Create thumbnails directory if it doesn't exist
+        THUMBNAILS_DIR.mkdir(parents=True, exist_ok=True)
+        
+        # Generate thumbnail filename
+        heic_file = Path(heic_path)
+        thumbnail_name = heic_file.stem + '_thumb.jpg'
+        thumbnail_path = THUMBNAILS_DIR / thumbnail_name
+        
+        # Check if thumbnail already exists
+        if thumbnail_path.exists():
+            return str(thumbnail_path)
+        
+        # Convert HEIC to JPG thumbnail
+        print(f"  Converting HEIC: {heic_file.name}")
+        img = Image.open(heic_path)
+        
+        # Resize to thumbnail (max 400px width/height)
+        img.thumbnail((400, 400), Image.Resampling.LANCZOS)
+        
+        # Convert to RGB if needed (HEIC can be RGBA)
+        if img.mode in ('RGBA', 'LA', 'P'):
+            background = Image.new('RGB', img.size, (255, 255, 255))
+            if img.mode == 'P':
+                img = img.convert('RGBA')
+            background.paste(img, mask=img.split()[-1] if img.mode in ('RGBA', 'LA') else None)
+            img = background
+        
+        # Save as JPG
+        img.save(thumbnail_path, 'JPEG', quality=85, optimize=True)
+        print(f"    ✓ Saved thumbnail: {thumbnail_name}")
+        
+        return str(thumbnail_path)
+    except Exception as e:
+        print(f"    ✗ Error converting {heic_path}: {e}")
+        return None
 
 
 def load_posts():
@@ -28,6 +75,43 @@ def load_posts():
         except Exception as e:
             print(f"Error loading {post_file}: {e}")
     
+    return posts
+
+
+def prepare_media_for_display(posts):
+    """Convert HEIC files to thumbnails for browser display."""
+    print("\nPreparing media files for display...")
+    
+    for post in posts:
+        post['display_media'] = []
+        for media_path in post['media']:
+            ext = Path(media_path).suffix.lower()
+            
+            if ext in ['.heic', '.heif']:
+                # Convert HEIC to thumbnail
+                thumbnail_path = convert_heic_to_thumbnail(media_path)
+                if thumbnail_path:
+                    post['display_media'].append({
+                        'original': media_path,
+                        'display': thumbnail_path,
+                        'type': 'heic'
+                    })
+                else:
+                    # Fallback to placeholder
+                    post['display_media'].append({
+                        'original': media_path,
+                        'display': None,
+                        'type': 'heic'
+                    })
+            else:
+                # Use original file for other formats
+                post['display_media'].append({
+                    'original': media_path,
+                    'display': media_path,
+                    'type': 'image' if ext in ['.jpg', '.jpeg', '.png'] else 'video'
+                })
+    
+    print("✓ Media preparation complete")
     return posts
 
 
@@ -185,30 +269,37 @@ Platforms: ${{post.platforms.join(', ')}}`;
             document.getElementById('mediaList').innerHTML = mediaHtml;
             
             // Update media preview
-            const previewHtml = post.media.map(m => {{
-                const filename = m.split('/').pop();
-                const ext = filename.split('.').pop().toLowerCase();
-                const isVideo = ['mov', 'mp4', 'm4v', 'avi', '3gp'].includes(ext);
-                const isHeic = ['heic', 'heif'].includes(ext);
+            const previewHtml = post.display_media.map(m => {{
+                const filename = m.original.split('/').pop();
                 
-                if (isVideo) {{
+                if (m.type === 'video') {{
+                    const ext = filename.split('.').pop().toLowerCase();
                     return `<div class="preview-item">
-                        <video src="file://${{m}}" controls>
-                            <source src="file://${{m}}" type="video/${{ext === 'mov' ? 'quicktime' : ext}}">
+                        <video src="file://${{m.display}}" controls>
+                            <source src="file://${{m.display}}" type="video/${{ext === 'mov' ? 'quicktime' : ext}}">
                         </video>
                         <div class="preview-label">🎬 ${{filename}}</div>
                     </div>`;
-                }} else if (isHeic) {{
-                    // HEIC files may not display in browser, show placeholder
-                    return `<div class="preview-item">
-                        <div style="width: 100%; height: 200px; display: flex; align-items: center; justify-content: center; background: #e4e6eb; color: #65676b; font-size: 48px;">
-                            📷
-                        </div>
-                        <div class="preview-label">📸 ${{filename}} (HEIC)</div>
-                    </div>`;
+                }} else if (m.type === 'heic') {{
+                    if (m.display) {{
+                        // Show converted thumbnail
+                        return `<div class="preview-item">
+                            <img src="file://${{m.display}}" alt="${{filename}}" onerror="this.parentElement.innerHTML='<div style=\\'width:100%;height:200px;display:flex;align-items:center;justify-content:center;background:#e4e6eb;color:#65676b;font-size:48px;\\'>📷</div><div class=\\'preview-label\\'>📸 ${{filename}} (HEIC)</div>'">
+                            <div class="preview-label">📸 ${{filename}} (HEIC)</div>
+                        </div>`;
+                    }} else {{
+                        // Fallback placeholder
+                        return `<div class="preview-item">
+                            <div style="width: 100%; height: 200px; display: flex; align-items: center; justify-content: center; background: #e4e6eb; color: #65676b; font-size: 48px;">
+                                📷
+                            </div>
+                            <div class="preview-label">📸 ${{filename}} (HEIC)</div>
+                        </div>`;
+                    }}
                 }} else {{
+                    // Regular image
                     return `<div class="preview-item">
-                        <img src="file://${{m}}" alt="${{filename}}" onerror="this.parentElement.innerHTML='<div style=\\'width:100%;height:200px;display:flex;align-items:center;justify-content:center;background:#e4e6eb;color:#65676b;font-size:48px;\\'>📷</div><div class=\\'preview-label\\'>📸 ${{filename}}</div>'">
+                        <img src="file://${{m.display}}" alt="${{filename}}" onerror="this.parentElement.innerHTML='<div style=\\'width:100%;height:200px;display:flex;align-items:center;justify-content:center;background:#e4e6eb;color:#65676b;font-size:48px;\\'>📷</div><div class=\\'preview-label\\'>📸 ${{filename}}</div>'">
                         <div class="preview-label">📸 ${{filename}}</div>
                     </div>`;
                 }}
@@ -317,6 +408,9 @@ def main():
     
     print(f"✓ Loaded {len(posts)} posts")
     
+    # Prepare media files (convert HEIC to thumbnails)
+    posts = prepare_media_for_display(posts)
+    
     print(f"\nGenerating reviewer HTML...")
     html = create_reviewer_html(posts)
     
@@ -331,11 +425,13 @@ def main():
     print("Reviewer opened in your browser!")
     print("\nFeatures:")
     print("  • Navigate: Previous/Next buttons or ← → arrow keys")
+    print("  • Image previews: JPG, PNG, and HEIC (auto-converted)")
+    print("  • Video previews: MOV, MP4 with playback controls")
     print("  • Copy: Click 'Copy Caption' button")
     print("  • Approve/Reject: Updates status and moves to next")
     print("  • Open folder/social media: Click respective buttons")
+    print(f"\nThumbnails saved to: {THUMBNAILS_DIR}")
     print("\nNote: This is a static HTML file. Changes are shown but not saved.")
-    print("Use simple_reviewer.py for saving changes to posts.")
 
 
 if __name__ == "__main__":
